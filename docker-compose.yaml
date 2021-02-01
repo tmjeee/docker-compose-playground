@@ -1,0 +1,38 @@
+version: "3.3"
+services:
+  frontend:
+    build:
+      context: ./fe-sample
+      dockerfile: docker/dockerfile
+    ports:
+      - 4201:80
+    expose:
+      - 4201
+    depends_on:
+      - backend
+    command: [
+      "nginx", "-g", "daemon off;"
+    ]
+
+  backend:
+    build:
+      context: ./be-sample
+      dockerfile: docker/dockerfile
+    ports:
+      - 8889:8888
+    expose:
+      - 8889
+    depends_on:
+      - mariadb
+    command: [
+      "./wait-for-db.sh", "--", "node src/app.js"
+    ]
+
+  mariadb:
+    image: mariadb:10
+    ports:
+      - 3307:3306
+    expose:
+      - 3307
+    environment:
+      MYSQL_ROOT_PASSWORD: root
