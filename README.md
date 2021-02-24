@@ -2,6 +2,8 @@
  
 Just a playground to try things out with docker-compose
 
+[More notes](./notes.md)
+
 
 ## Diagram
 
@@ -34,8 +36,8 @@ Just a playground to try things out with docker-compose
   |        |                    |
   |  +-----v-----------------+  |
   |  | docker:               |  |
-  |  | mariadb               |  |
-  |  |  - local port: 3306   |  |
+  |  | mariadb               |  |<---------------------- Squirrel SQL
+  |  |  - local port: 3306   |  |                        MariaDB port 3307
   |  |  - public port: 3307  |  |
   |  +-----------------------+  |
   +-----------------------------+

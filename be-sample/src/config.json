@@ -1,0 +1,6 @@
+{
+  "dbHost": "mariadb",
+  "dbUsername": "root",
+  "dbPassword": "root",
+  "dbPort": 3306
+}

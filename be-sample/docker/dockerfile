@@ -9,6 +9,7 @@ COPY ./package-lock.json ./
 COPY ./tsconfig.json ./
 
 COPY ./src/ ./src/
+COPY ./src/config.json ./dist/
 COPY ./wait-for-db.sh ./
 
 RUN apt -y update && \
@@ -17,4 +18,4 @@ RUN apt -y update && \
     npm install && \
     npm run compile
 
-# CMD ["node", "src/app.js"]
+CMD ["node", "dist/app.js"]

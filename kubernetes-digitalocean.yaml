@@ -1,0 +1,119 @@
+
+# ========================
+# === Configuration for fe-sample pod, change host parameters accordingly
+# ===   before doing `kubectl apply -f`
+# ========================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fe-sample-config
+data:
+  config.json: |
+    {
+      "host": "http://besample.mydomain.com:8888"
+    }
+
+---
+
+# =========================
+# == Configuration for be-sample pod, change db parameters accordingly
+# ==   before doing `kubectl apply -f`
+# =========================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: be-sample-config
+data:
+  config.json: |
+    {
+      "dbHost": "mariadb.mydomain.com",
+      "dbUsername": "root",
+      "dbPassword": "root",
+      "dbPort": 3306
+    }
+
+---
+
+# =================
+# ==  MariaDb service, allow mariadb to be accessible publicly and also by be-sample
+# ==    use ClusterIp instead of LoadBalancer if it needs to be only accessible within
+# ==    cluster
+# =================
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
+    service.beta.kubernetes.io/do-loadbalancer-algorithm: "round_robin"
+    service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "7c901bd8-b215-4d67-9a22-28d6a6f6d4eb"
+    service.beta.kubernetes.io/do-loadbalancer-hostname: "mariadb.mydomain.com"
+spec:
+  type: LoadBalancer
+  selector:
+    app: mariadb
+  ports:
+    - port: 3306
+      protocol: TCP
+      targetPort: db-port
+
+
+---
+
+
+# =========================
+# == Load balancer for be-sample, allow it to be accessible publicly
+# =========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: be-sample-service
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
+    service.beta.kubernetes.io/do-loadbalancer-algorithm: "round_robin"
+    service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "7c901bd8-b215-4d67-9a22-28d6a6f6d4eb"
+    service.beta.kubernetes.io/do-loadbalancer-hostname: "besample.mydomain.com"
+spec:
+  type: LoadBalancer
+  selector:
+    app: be-sample
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8888
+      name: http
+    - protocol: TCP
+      port: 443
+      targetPort: 8888
+      name: https
+
+---
+
+# =====================
+# == Load balancer for fe-sample, allow it to be accessible publicly
+# =====================
+apiVersion: v1
+kind: Service
+metadata:
+  name: fe-sample-service
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
+    service.beta.kubernetes.io/do-loadbalancer-algorithm: "round_robin"
+    service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "7c901bd8-b215-4d67-9a22-28d6a6f6d4eb"
+    service.beta.kubernetes.io/do-loadbalancer-hostname: "fesample.mydomain.com"
+spec:
+  type: LoadBalancer
+  selector:
+    app: fe-sample
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: http
+    - protocol: TCP
+      port: 443
+      targetPort: 80
+      name: https

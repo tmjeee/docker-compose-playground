@@ -1,0 +1,99 @@
+#
+# Deployment of MariaDB
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb
+          ports:
+            - containerPort: 3306
+              name: db-port
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+
+
+---
+
+#
+# Deployment of fe-sample
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fe-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fe-sample
+  template:
+    metadata:
+      labels:
+        app: fe-sample
+    spec:
+      containers:
+        - name: fe-sample
+          image: tmjee/fe-sample:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: fe-sample-config
+              mountPath: /usr/share/nginx/html/assets/config.json
+              subPath: config.json
+      volumes:
+        - name: fe-sample-config
+          configMap:
+            name: fe-sample-config
+
+
+
+---
+#
+# Deployment of be-sample
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: be-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: be-sample
+  template:
+    metadata:
+      labels:
+        app: be-sample
+    spec:
+      containers:
+        - name: be-sample
+          image: tmjee/be-sample:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8888
+              name: http
+          volumeMounts:
+            - name: be-sample-config
+              mountPath: /app/dist/config.json
+              subPath: config.json
+      volumes:
+        - name: be-sample-config
+          configMap:
+            name: be-sample-config
+
