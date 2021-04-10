@@ -4,7 +4,7 @@
 
 ```bash
 docker-compose down 
-docker-compose up --build --force-create
+docker-compose up --build --force-recreate
 ```
 * --build           = build image again
 * --force-create    = create container again
